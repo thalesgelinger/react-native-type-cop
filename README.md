@@ -2,6 +2,11 @@
 
 The react native typescript police
 
+## Demo
+
+https://github.com/thalesgelinger/react-native-type-cop/assets/55005400/c96fd878-eed3-48cb-a984-93e479f7e365
+
+
 ## Installation
 
 ```sh
