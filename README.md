@@ -10,13 +10,25 @@ npm install react-native-type-cop
 
 ## Usage
 
+on App.tsx
 ```js
-import { multiply } from 'react-native-type-cop';
+import { Debugger } from 'react-native-type-cop';
 
 // ...
 
-const result = await multiply(3, 7);
+return <>
+  <Debugger/>
+  ...
+</>
 ```
+
+on top of metro.config.js
+```js
+require('react-native-type-cop/lib/module/typecop');
+// ...
+```
+
+
 
 ## Contributing
 
