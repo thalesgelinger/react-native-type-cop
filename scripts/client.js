@@ -6,7 +6,7 @@ ws.on('open', () => {
   console.log('Connected to server');
 
   ws.on('message', (message) => {
-    console.log('Received:', message.toString());
+    console.log('Received:', JSON.parse(message.toString()));
   });
 });
 

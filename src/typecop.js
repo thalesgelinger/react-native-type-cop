@@ -53,7 +53,21 @@ const typeCheck = (ws) => {
 
     if (splittedChunk[splittedChunk.length - 1].includes('Found')) {
       console.log('STOPPED');
+
+      //SEND ERRORS
+
       console.log(errors);
+
+      const sanitizedErrors = [];
+      for (let i = 0; i < errors.length; i = i + 3) {
+        sanitizedErrors.push({
+          message: errors[i],
+          line: errors[i + 1],
+          hint: errors[i + 2],
+        });
+      }
+
+      ws.send(JSON.stringify(sanitizedErrors));
 
       if (!errors.length) {
         console.log(TAG.LOG + ' ' + 'No types Error');
