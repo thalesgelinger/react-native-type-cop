@@ -9,6 +9,9 @@ const modules = Object.keys({ ...pak.peerDependencies });
 
 const defaultConfig = getDefaultConfig(__dirname);
 
+require('../src/typecop');
+
+
 /**
  * Metro configuration
  * https://facebook.github.io/metro/docs/configuration
