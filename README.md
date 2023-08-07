@@ -21,12 +21,12 @@ npm install react-native-type-cop
 
 on App.tsx
 ```js
-import { Debugger } from 'react-native-type-cop';
+import { Typecop } from 'react-native-type-cop';
 
 // ...
 
 return <>
-  <Debugger/>
+  <Typecop/>
   ...
 </>
 ```
