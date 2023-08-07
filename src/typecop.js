@@ -36,28 +36,34 @@ const typeCheck = (ws) => {
   child.stdout.on('data', (chunkRaw) => {
     const chunk = cleanText(chunkRaw);
 
-    console.log({ chunk });
-
     const splittedChunk = chunk.split('\n').filter((v) => !!v);
 
     if (stopPoint(splittedChunk[0]) && !splittedChunk[0].includes('Found')) {
-      console.log('STARTED');
       errors = [];
     }
 
     if (hasError(chunk)) {
       const onlyErrors = splittedChunk.filter((c) => !stopPoint(c));
       errors = [...errors, ...onlyErrors];
-      // ws.send(chunk);
     }
 
     if (splittedChunk[splittedChunk.length - 1].includes('Found')) {
-      console.log('STOPPED');
-      console.log(errors);
+      const sanitizedErrors = [];
+      for (let i = 0; i < errors.length; i = i + 3) {
+        sanitizedErrors.push({
+          message: errors[i],
+          line: errors[i + 1],
+          hint: errors[i + 2],
+        });
+      }
+
+      errors.forEach((error) => {
+        console.log(TAG.ERROR + error);
+      });
+      ws.send(JSON.stringify(sanitizedErrors));
 
       if (!errors.length) {
         console.log(TAG.LOG + ' ' + 'No types Error');
-        // ws.send(chunk);
       }
       errors = [];
       return;

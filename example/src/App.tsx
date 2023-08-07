@@ -3,7 +3,6 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Typecop } from 'react-native-type-cop';
 
 const App: React.FC = () => {
-  const a: string = 10;
   return (
     <>
       <Typecop />
