@@ -1,27 +1,39 @@
 import React, { useEffect, useState } from 'react';
 
-import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { FlatList, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 
-export const Debugger = () => {
-  const [error, setError] = useState<Error | null>(null);
+const removeUnicode = (text: string) => {
+  return text.replace(/\u001b\[\d{1,2}m/g, ' ');
+};
+
+export const Typecop = () => {
+  const [errors, setErrors] = useState<string[]>([]);
 
   useEffect(() => {
-    console.log('Debugger');
     const ws = new WebSocket('ws://localhost:8080');
 
     ws.onopen = () => {
-      console.log('Connected to server');
+      console.log('Connected to typecop');
     };
 
     ws.onmessage = (e) => {
       console.log('Received:');
       const message: string = e.data;
-      if (message.startsWith('ERROR')) {
-        console.log({ message });
-        setError(new Error(message));
-      } else {
-        setError(null);
-      }
+      const sanitizedMessage = removeUnicode(message);
+      console.log({ sanitizedMessage });
+      setErrors((prevErrors) => {
+        if (prevErrors.at(-1) === '-') {
+          // TODO: last line, think better
+          return [sanitizedMessage];
+        }
+        if (
+          sanitizedMessage.startsWith('[') ||
+          sanitizedMessage.startsWith('c[')
+        ) {
+          return [...prevErrors, '-'];
+        }
+        return [...prevErrors, sanitizedMessage];
+      });
     };
 
     ws.onerror = (e) => {
@@ -29,7 +41,7 @@ export const Debugger = () => {
     };
 
     ws.onclose = (e) => {
-      console.log('Connection to server closed');
+      console.log('Connection to typecop closed');
       console.log(e.code, e.reason);
     };
     return () => {
@@ -37,11 +49,19 @@ export const Debugger = () => {
     };
   }, []);
 
-  return error ? (
+  return errors.length ? (
     <SafeAreaView style={styles.error}>
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>{error.message}</Text>
-      </View>
+      <FlatList
+        data={errors}
+        style={styles.errorContainer}
+        renderItem={({ item }) => {
+          return (
+            <View>
+              <Text style={styles.errorText}>{item}</Text>
+            </View>
+          );
+        }}
+      />
     </SafeAreaView>
   ) : null;
 };

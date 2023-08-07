@@ -4,35 +4,77 @@ const { backgroundColors, fontColors } = require('./colorize');
 
 console.log('Started typecop');
 
+const TAG = {
+  LOG: backgroundColors.white + fontColors.black + ' LOG ' + fontColors.reset,
+  ERROR: backgroundColors.red + fontColors.black + ' ERROR ' + fontColors.reset,
+};
+
+const hasError = (chunk) => {
+  // const tsRegexError = /TS\d+(?=:)/;
+  // return tsRegexError.test(chunk);
+  return chunk.includes(' error');
+};
+
+const stopPoint = (chunk) => {
+  const stopRegex = /\[ (\d{1,2}:\d{2}:\d{2} [APap][Mm]) \]/;
+  return stopRegex.test(chunk);
+};
+
 const wss = new WebSocket.Server({ port: 8080 });
 
+const cleanText = (text) => {
+  return text.replace(/\u001b\[\d{1,2}m/g, ' ');
+};
+
+let errors = [];
+
 const typeCheck = (ws) => {
-  const child = spawn('npx', ['ts-watch']);
+  const child = spawn('npx', ['ts-watch', '--pretty']);
 
   child.stdout.setEncoding('utf8');
 
-  child.stdout.on('data', (chunk) => {
-    if (chunk.includes('error')) {
-      if (!chunk.includes('Found 0 errors')) {
-        const errorTag =
-          backgroundColors.red +
-          fontColors.black +
-          ' ERROR ' +
-          fontColors.reset;
-        console.error(errorTag + ' ' + chunk);
-        if (chunk.includes('error ')) {
-          console.log('sending');
-          ws.send('ERROR ' + chunk);
-        }
-      } else {
-        const logTag =
-          backgroundColors.white +
-          fontColors.black +
-          ' LOG ' +
-          fontColors.reset;
-        console.log(logTag + ' ' + 'No types Error');
-        ws.send('LOG ' + chunk);
+  child.stdout.on('data', (chunkRaw) => {
+    const chunk = cleanText(chunkRaw);
+
+    console.log({ chunk });
+
+    const splittedChunk = chunk.split('\n').filter((v) => !!v);
+
+    if (stopPoint(splittedChunk[0]) && !splittedChunk[0].includes('Found')) {
+      console.log('STARTED');
+      errors = [];
+    }
+
+    if (hasError(chunk)) {
+      const onlyErrors = splittedChunk.filter((c) => !stopPoint(c));
+      errors = [...errors, ...onlyErrors];
+      // ws.send(chunk);
+    }
+
+    if (splittedChunk[splittedChunk.length - 1].includes('Found')) {
+      console.log('STOPPED');
+
+      //SEND ERRORS
+
+      console.log(errors);
+
+      const sanitizedErrors = [];
+      for (let i = 0; i < errors.length; i = i + 3) {
+        sanitizedErrors.push({
+          message: errors[i],
+          line: errors[i + 1],
+          hint: errors[i + 2],
+        });
       }
+
+      ws.send(JSON.stringify(sanitizedErrors));
+
+      if (!errors.length) {
+        console.log(TAG.LOG + ' ' + 'No types Error');
+        // ws.send(chunk);
+      }
+      errors = [];
+      return;
     }
   });
 
