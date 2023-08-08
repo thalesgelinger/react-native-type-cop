@@ -1,6 +1,6 @@
 {
   "name": "react-native-type-cop",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "The react native typescript police",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
