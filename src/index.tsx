@@ -45,7 +45,7 @@ export const Typecop = () => {
       </View>
       <FlatList
         data={errors}
-        style={styles.errorContainer}
+        contentContainerStyle={styles.errorContainer}
         renderItem={({ item }) => {
           return (
             <View style={styles.errorContent}>
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   },
   errorContainer: {
     flex: 1,
-    marginHorizontal: 16,
+    marginHorizontal: 8,
     padding: 8,
     borderRadius: 16,
     backgroundColor: '#3F3F3F',

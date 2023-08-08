@@ -44,6 +44,7 @@ const typeCheck = (ws) => {
 
     if (hasError(chunk)) {
       const onlyErrors = splittedChunk.filter((c) => !stopPoint(c));
+      console.log({ onlyErrors });
       errors = [...errors, ...onlyErrors];
     }
 
