@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 
 import { FlatList, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 
-const removeUnicode = (text: string) => {
-  return text.replace(/\u001b\[\d{1,2}m/g, ' ');
+type TypecopError = {
+  message: string;
+  line: string;
+  hint: string;
 };
 
 export const Typecop = () => {
-  const [errors, setErrors] = useState<string[]>([]);
+  const [errors, setErrors] = useState<TypecopError[]>([]);
 
   useEffect(() => {
     const ws = new WebSocket('ws://localhost:8080');
@@ -17,23 +19,8 @@ export const Typecop = () => {
     };
 
     ws.onmessage = (e) => {
-      console.log('Received:');
-      const message: string = e.data;
-      const sanitizedMessage = removeUnicode(message);
-      console.log({ sanitizedMessage });
-      setErrors((prevErrors) => {
-        if (prevErrors.at(-1) === '-') {
-          // TODO: last line, think better
-          return [sanitizedMessage];
-        }
-        if (
-          sanitizedMessage.startsWith('[') ||
-          sanitizedMessage.startsWith('c[')
-        ) {
-          return [...prevErrors, '-'];
-        }
-        return [...prevErrors, sanitizedMessage];
-      });
+      const newErrors = JSON.parse(e.data);
+      setErrors(newErrors);
     };
 
     ws.onerror = (e) => {
@@ -57,7 +44,11 @@ export const Typecop = () => {
         renderItem={({ item }) => {
           return (
             <View>
-              <Text style={styles.errorText}>{item}</Text>
+              <Text style={styles.errorText}>{item.message}</Text>
+              <View style={styles.lineHint}>
+                <Text style={styles.errorText}>{item.line}</Text>
+                <Text style={styles.errorText}>{item.hint}</Text>
+              </View>
             </View>
           );
         }}
@@ -86,5 +77,8 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: 'black',
+  },
+  lineHint: {
+    backgroundColor: 'gray',
   },
 });
