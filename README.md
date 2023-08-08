@@ -1,6 +1,7 @@
-# react-native-type-cop
-
+# react native type cop
 The react native typescript police
+
+#### This Library is in progress, feel free to help me improve that
 
 ## Motivation
 
@@ -8,7 +9,11 @@ By using typescript, we notice that in the web we can simply not allowing the bu
 
 ## Demo
 
-https://github.com/thalesgelinger/react-native-type-cop/assets/55005400/c96fd878-eed3-48cb-a984-93e479f7e365
+
+
+https://github.com/thalesgelinger/react-native-type-cop/assets/55005400/edcf17db-2922-4bc6-ad1c-2044afe734fa
+
+
 
 
 ## Installation
